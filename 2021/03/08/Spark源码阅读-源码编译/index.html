@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blogs/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blogs/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blogs/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blogs/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blogs/css/main.css">
+
+
+<link rel="stylesheet" href="/blogs/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"xsomnus.github.io","root":"/blogs/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="Apache Spark™ is a unified analytics engine for large-scale data processing. 编译环境   类型 值 说明    OS macOS Big Sur(v11.0.1)    Java JDK8    Scala 2.12    Spark 3.1.1     假设: 本文读者已经了解spark的用途以及其生态中的几大组件(s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark源码阅读-源码编译">
+<meta property="og:url" content="https://xsomnus.github.io/blogs/2021/03/08/Spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB-%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/index.html">
+<meta property="og:site_name" content="技术改变世界">
+<meta property="og:description" content="Apache Spark™ is a unified analytics engine for large-scale data processing. 编译环境   类型 值 说明    OS macOS Big Sur(v11.0.1)    Java JDK8    Scala 2.12    Spark 3.1.1     假设: 本文读者已经了解spark的用途以及其生态中的几大组件(s">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://xsomnus.github.io/blogs/2021/03/08/Spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB-%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/spark-build.png">
+<meta property="og:image" content="https://xsomnus.github.io/blogs/2021/03/08/Spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB-%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/include-provided.png">
+<meta property="article:published_time" content="2021-03-08T02:37:29.000Z">
+<meta property="article:modified_time" content="2021-03-08T06:06:43.025Z">
+<meta property="article:author" content="雨一直夏">
+<meta property="article:tag" content="Spark">
+<meta property="article:tag" content="大数据">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://xsomnus.github.io/blogs/2021/03/08/Spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB-%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/spark-build.png">
+
+<link rel="canonical" href="https://xsomnus.github.io/blogs/2021/03/08/Spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB-%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Spark源码阅读-源码编译 | 技术改变世界</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blogs/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">技术改变世界</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">用有趣的方式看世界</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blogs/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blogs/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blogs/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blogs/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blogs/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://xsomnus.github.io/blogs/2021/03/08/Spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB-%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blogs/images/avatar.gif">
+      <meta itemprop="name" content="雨一直夏">
+      <meta itemprop="description" content="年少无为,码上人生">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术改变世界">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spark源码阅读-源码编译
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-03-08 10:37:29 / 修改时间：14:06:43" itemprop="dateCreated datePublished" datetime="2021-03-08T10:37:29+08:00">2021-03-08</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blogs/categories/Spark/" itemprop="url" rel="index"><span itemprop="name">Spark</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blogs/categories/Spark/%E5%A4%A7%E6%95%B0%E6%8D%AE/" itemprop="url" rel="index"><span itemprop="name">大数据</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>Apache Spark™ is a unified analytics engine for large-scale data processing.</strong></p>
+<h1 id="编译环境"><a href="#编译环境" class="headerlink" title="编译环境"></a>编译环境</h1><table>
+<thead>
+<tr>
+<th align="center">类型</th>
+<th align="center">值</th>
+<th align="center">说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">OS</td>
+<td align="center">macOS Big Sur(v11.0.1)</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">Java</td>
+<td align="center">JDK8</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">Scala</td>
+<td align="center">2.12</td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center">Spark</td>
+<td align="center">3.1.1</td>
+<td align="center"></td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>假设:<br> 本文读者已经了解spark的用途以及其生态中的几大组件(spark-core, sparksql, mllib graphx)等</p>
+</blockquote>
+<span id="more"></span>
+
+<h1 id="编译过程"><a href="#编译过程" class="headerlink" title="编译过程"></a>编译过程</h1><h2 id="1-把github上的spark仓库复制到gitee-码云"><a href="#1-把github上的spark仓库复制到gitee-码云" class="headerlink" title="1. 把github上的spark仓库复制到gitee(码云)"></a>1. 把github上的spark仓库复制到gitee(码云)</h2><p>如果已经有翻墙条件的同学是不必要的</p>
+<h2 id="2-clone代码到本地"><a href="#2-clone代码到本地" class="headerlink" title="2. clone代码到本地"></a>2. clone代码到本地</h2><p>建议添加一个<code>study</code>分支用来学习spark源码</p>
+<h2 id="3-mvn安装依赖"><a href="#3-mvn安装依赖" class="headerlink" title="3. mvn安装依赖"></a>3. mvn安装依赖</h2><p>将mvn仓库换成阿里云镜像, 可以加快安装速度</p>
+<p><code>mvn clean install -DskipTests</code></p>
+<p><img src="spark-build.png" alt="安装完成"></p>
+<h2 id="4-模拟运行WordCount程序"><a href="#4-模拟运行WordCount程序" class="headerlink" title="4. 模拟运行WordCount程序"></a>4. 模拟运行WordCount程序</h2><p>程序所在路径</p>
+<p><strong>examples -&gt; org.apache.spark.examples.JavaWordCount</strong></p>
+<p>添加程序启动参数 <code>/Users/xianmingliu/xsomnus/src-code/spark/README.md</code></p>
+<blockquote>
+<p>TIPS</p>
+<p>提示找不到 SparkSession是由于项目导入包的作用域导致的。 按照下图操作即可</p>
+</blockquote>
+<p><img src="include-provided.png" alt="includ-provided"></p>
+<h1 id="Spark包结构概述"><a href="#Spark包结构概述" class="headerlink" title="Spark包结构概述"></a>Spark包结构概述</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── R</span><br><span class="line">│   └── pkg -- 支持R语言的库</span><br><span class="line">├── bin &#x2F;&#x2F; 命令 spark-submit.sh spark-shell, spark-sql等</span><br><span class="line">├── conf &#x2F;&#x2F; 一些配置文件的模板</span><br><span class="line">├── core &#x2F;&#x2F; spark核心（RDD，阶段划分，任务调度等）</span><br><span class="line">│   ├── benchmarks</span><br><span class="line">│   ├── src</span><br><span class="line">│   └── target</span><br><span class="line">├── data &#x2F;&#x2F; 用来放置一些测试数据的</span><br><span class="line">│   ├── graphx </span><br><span class="line">│   ├── mllib</span><br><span class="line">│   └── streaming</span><br><span class="line">├── dev</span><br><span class="line">│   ├── create-release</span><br><span class="line">│   ├── deps</span><br><span class="line">│   ├── sparktestsupport</span><br><span class="line">│   └── tests</span><br><span class="line">├── docs</span><br><span class="line">│   ├── _data</span><br><span class="line">│   ├── _includes</span><br><span class="line">│   ├── _layouts</span><br><span class="line">│   ├── _plugins</span><br><span class="line">│   ├── css</span><br><span class="line">│   ├── img</span><br><span class="line">│   └── js</span><br><span class="line">├── examples &#x2F;&#x2F; 存放一些使用示例的</span><br><span class="line">│   ├── src</span><br><span class="line">│   └── target</span><br><span class="line">├── external </span><br><span class="line">│   ├── avro</span><br><span class="line">│   ├── docker</span><br><span class="line">│   ├── docker-integration-tests</span><br><span class="line">│   ├── kafka-0-10</span><br><span class="line">│   ├── kafka-0-10-assembly</span><br><span class="line">│   ├── kafka-0-10-sql</span><br><span class="line">│   ├── kafka-0-10-token-provider</span><br><span class="line">│   ├── kinesis-asl</span><br><span class="line">│   ├── kinesis-asl-assembly</span><br><span class="line">│   └── spark-ganglia-lgpl</span><br><span class="line">├── graphx &#x2F;&#x2F; 图计算相关的库</span><br><span class="line">│   ├── src</span><br><span class="line">│   └── target</span><br><span class="line">├── hadoop-cloud</span><br><span class="line">│   └── src</span><br><span class="line">├── launcher</span><br><span class="line">│   ├── src</span><br><span class="line">│   └── target</span><br><span class="line">├── licenses</span><br><span class="line">├── licenses-binary</span><br><span class="line">├── mllib &#x2F;&#x2F; 机器学习库</span><br><span class="line">│   ├── benchmarks</span><br><span class="line">│   ├── src</span><br><span class="line">│   └── target</span><br><span class="line">├── mllib-local</span><br><span class="line">│   ├── src</span><br><span class="line">│   └── target</span><br><span class="line">├── project</span><br><span class="line">├── python</span><br><span class="line">│   ├── docs</span><br><span class="line">│   ├── lib</span><br><span class="line">│   ├── pyspark</span><br><span class="line">│   ├── test_coverage</span><br><span class="line">│   └── test_support</span><br><span class="line">├── repl</span><br><span class="line">│   ├── src</span><br><span class="line">│   └── target</span><br><span class="line">├── resource-managers</span><br><span class="line">│   ├── kubernetes</span><br><span class="line">│   ├── mesos</span><br><span class="line">│   └── yarn</span><br><span class="line">├── sbin</span><br><span class="line">├── sql &#x2F;&#x2F; spark-sql核心组件  </span><br><span class="line">│   ├── catalyst</span><br><span class="line">│   ├── core</span><br><span class="line">│   ├── hive</span><br><span class="line">│   └── hive-thriftserver</span><br><span class="line">├── streaming</span><br><span class="line">│   ├── src</span><br><span class="line">│   └── target</span><br><span class="line">├── target</span><br><span class="line">│   ├── antrun</span><br><span class="line">│   ├── maven-archiver</span><br><span class="line">│   ├── maven-shared-archive-resources</span><br><span class="line">│   └── tmp</span><br><span class="line">└── tools</span><br><span class="line">    ├── src</span><br><span class="line">    └── target</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h1 id="关于spark的一点思考"><a href="#关于spark的一点思考" class="headerlink" title="关于spark的一点思考"></a>关于spark的一点思考</h1><p>spark是大数据库领域必不可少的计算组件, 个人认为spark和flink会成为大数据计算领域的双子星;<br>spark的本质是分布式计算服务, 这就意味着spark需要分布式技术去保证实现. 其核心包含以下模块</p>
+<ul>
+<li>内存管理</li>
+<li>计算任务调度</li>
+<li>资源调度</li>
+</ul>
+<p>其实最难的还是算法的设计, 作为服务于算法的分布式计算框架本身的spark并不难.希望通过【Spark源码】系列,能够帮助我以及各位朋友加深对spark的认知以及体会spark的优雅实现。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blogs/tags/Spark/" rel="tag"># Spark</a>
+              <a href="/blogs/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/" rel="tag"># 大数据</a>
+          </div>
+
+        
+
+
+        
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83"><span class="nav-number">1.</span> <span class="nav-text">编译环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">编译过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%8A%8Agithub%E4%B8%8A%E7%9A%84spark%E4%BB%93%E5%BA%93%E5%A4%8D%E5%88%B6%E5%88%B0gitee-%E7%A0%81%E4%BA%91"><span class="nav-number">2.1.</span> <span class="nav-text">1. 把github上的spark仓库复制到gitee(码云)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-clone%E4%BB%A3%E7%A0%81%E5%88%B0%E6%9C%AC%E5%9C%B0"><span class="nav-number">2.2.</span> <span class="nav-text">2. clone代码到本地</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-mvn%E5%AE%89%E8%A3%85%E4%BE%9D%E8%B5%96"><span class="nav-number">2.3.</span> <span class="nav-text">3. mvn安装依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E6%A8%A1%E6%8B%9F%E8%BF%90%E8%A1%8CWordCount%E7%A8%8B%E5%BA%8F"><span class="nav-number">2.4.</span> <span class="nav-text">4. 模拟运行WordCount程序</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Spark%E5%8C%85%E7%BB%93%E6%9E%84%E6%A6%82%E8%BF%B0"><span class="nav-number">3.</span> <span class="nav-text">Spark包结构概述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%85%B3%E4%BA%8Espark%E7%9A%84%E4%B8%80%E7%82%B9%E6%80%9D%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">关于spark的一点思考</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">雨一直夏</p>
+  <div class="site-description" itemprop="description">年少无为,码上人生</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blogs/archives/">
+        
+          <span class="site-state-item-count">1</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blogs/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blogs/tags/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">雨一直夏</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blogs/lib/anime.min.js"></script>
+  <script src="/blogs/lib/velocity/velocity.min.js"></script>
+  <script src="/blogs/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blogs/js/utils.js"></script>
+
+<script src="/blogs/js/motion.js"></script>
+
+
+<script src="/blogs/js/schemes/muse.js"></script>
+
+
+<script src="/blogs/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '68c9173ea0460ae78815',
+      clientSecret: '0b71cd9b77f2fdb311cda9acc8c80a7c10a5b243',
+      repo        : 'blogs',
+      owner       : 'xsomnus',
+      admin       : ['xsomnus'],
+      id          : '287b09d39d85a198f57979270ad650bd',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
