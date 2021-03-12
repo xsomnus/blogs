@@ -17,7 +17,7 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"xsomnus.github.io","root":"/blogs/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"xsomnus.github.io","root":"/blogs/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
   <meta name="description" content="背景在公司从事CRM系统设计的时候，产品设计之初有个功能需求就是需要导出合同文件（PDF)以及提供预览功能。其中合同包括单次广告合同，DSP合同，框架合同以及认刊书等等，每种合同的内容和格式都不相同。 思考无论什么合同，从主题内容上来看，都包括静态部分和动态部分；（所谓静态即内容针对与所有的合同都是一样的，而动态内容则需要不同的数据来渲染成不同的格式 ）。为此，想到了dubbo官网中关于api与s">
@@ -30,7 +30,7 @@
 <meta property="og:image" content="https://xsomnus.github.io/blogs/2021/03/09/PDF%E5%AF%BC%E5%87%BA%E5%8A%9F%E8%83%BD%E8%AE%BE%E8%AE%A1/api-render.png">
 <meta property="og:image" content="https://xsomnus.github.io/blogs/2021/03/09/PDF%E5%AF%BC%E5%87%BA%E5%8A%9F%E8%83%BD%E8%AE%BE%E8%AE%A1/design.png">
 <meta property="article:published_time" content="2021-03-09T07:07:59.000Z">
-<meta property="article:modified_time" content="2021-03-09T08:24:37.205Z">
+<meta property="article:modified_time" content="2021-03-12T06:42:43.413Z">
 <meta property="article:author" content="雨一直夏">
 <meta property="article:tag" content="PDF导出">
 <meta name="twitter:card" content="summary">
@@ -192,17 +192,23 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-03-09 15:07:59 / 修改时间：16:24:37" itemprop="dateCreated datePublished" datetime="2021-03-09T15:07:59+08:00">2021-03-09</time>
+              <time title="创建时间：2021-03-09 15:07:59" itemprop="dateCreated datePublished" datetime="2021-03-09T15:07:59+08:00">2021-03-09</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-12 14:42:43" itemprop="dateModified" datetime="2021-03-12T14:42:43+08:00">2021-03-12</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/blogs/categories/%E5%8A%9F%E8%83%BD%E8%AE%BE%E8%AE%A1/" itemprop="url" rel="index"><span itemprop="name">功能设计</span></a>
+                  <a href="/blogs/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" itemprop="url" rel="index"><span itemprop="name">系统设计</span></a>
                 </span>
             </span>
 
@@ -218,7 +224,7 @@
 
       
         <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>在公司从事CRM系统设计的时候，产品设计之初有个功能需求就是需要导出合同文件（PDF)以及提供预览功能。其中合同包括单次广告合同，DSP合同，框架合同以及认刊书等等，每种合同的内容和格式都不相同。</p>
-<h1 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h1><p>无论什么合同，从主题内容上来看，都包括静态部分和动态部分；（所谓静态即内容针对与所有的合同都是一样的，而动态内容则需要不同的数据来渲染成不同的格式 ）。为此，想到了<a target="_blank" rel="noopener" href="https://dubbo.apache.org/zh/docs/v2.7/dev/principals/general-knowledge/">dubbo官网中关于api与spi的分离 的设计</a>。</p>
+<h1 id="思考"><a href="#思考" class="headerlink" title="思考"></a>思考</h1><p>无论什么合同，从主题内容上来看，都包括静态部分和动态部分；（所谓静态即内容针对与所有的合同都是一样的，而动态内容则需要不同的数据来渲染成不同的格式 ）。为此，想到了<a target="_blank" rel="noopener" href="https://dubbo.apache.org/zh/docs/v2.7/dev/principals/general-knowledge/">dubbo官网中关于api与spi的分离的设计</a>。</p>
 <p>技术上，选用的itext7的技术实现。 如果编码去写合同的cell肯定不现实，而且后期的可维护性和可拓展性太差。比如实时变更合同上的条款内容， 需要重新发版，代价高。所以选择<strong>html+freemarker+itext</strong>的实现方案。</p>
 <span id="more"></span>
 
@@ -232,7 +238,7 @@
 <p><img src="api-render.png" alt="api-render"></p>
 <h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><p>有了上述的思考作为铺垫之后， 真正到落地需要配合数据库，应用层的代码和第三方存储系统共同参与方能完成一个完整的pdf导出模块。</p>
 <p><img src="design.png" alt="design"></p>
-<p>可以看出 SPI对应的是 Render的设计， API对应的是 Builder的设计。而中间的CombinePolicy则是交付给运营人员配置和管理的。</p>
+<p>可以看出 SPI对应的是 Render的设计， API对应的是Builder的设计。而中间的CombinePolicy则是交付给运营人员配置和管理的。</p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>在一个简单的PDF导出功能设计和实现中，设计模式包含了策略模式，桥接模式，组合模式，模板方法模式和装饰器模式 。从后期的业务上实现了可扩展性设计。 </p>
 <p><strong>实现细节</strong></p>
 <ul>
@@ -344,13 +350,13 @@
       <div class="site-state-item site-state-categories">
             <a href="/blogs/categories/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/blogs/tags/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -383,7 +389,7 @@
   </span>
   <span class="author" itemprop="copyrightHolder">雨一直夏</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
   </div>
 
         
@@ -409,7 +415,7 @@
 <script src="/blogs/js/motion.js"></script>
 
 
-<script src="/blogs/js/schemes/muse.js"></script>
+<script src="/blogs/js/schemes/pisces.js"></script>
 
 
 <script src="/blogs/js/next-boot.js"></script>
