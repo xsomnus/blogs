@@ -4,14 +4,14 @@ date: 2021-03-09 15:07:59
 tags:
 	- PDF导出
 categories:
-	- 功能设计 
+	- 系统设计 
 ---
 
 # 背景
 在公司从事CRM系统设计的时候，产品设计之初有个功能需求就是需要导出合同文件（PDF)以及提供预览功能。其中合同包括单次广告合同，DSP合同，框架合同以及认刊书等等，每种合同的内容和格式都不相同。
 
 # 思考
-无论什么合同，从主题内容上来看，都包括静态部分和动态部分；（所谓静态即内容针对与所有的合同都是一样的，而动态内容则需要不同的数据来渲染成不同的格式 ）。为此，想到了[dubbo官网中关于api与spi的分离 的设计](https://dubbo.apache.org/zh/docs/v2.7/dev/principals/general-knowledge/)。
+无论什么合同，从主题内容上来看，都包括静态部分和动态部分；（所谓静态即内容针对与所有的合同都是一样的，而动态内容则需要不同的数据来渲染成不同的格式 ）。为此，想到了[dubbo官网中关于api与spi的分离的设计](https://dubbo.apache.org/zh/docs/v2.7/dev/principals/general-knowledge/)。
 
 技术上，选用的itext7的技术实现。 如果编码去写合同的cell肯定不现实，而且后期的可维护性和可拓展性太差。比如实时变更合同上的条款内容， 需要重新发版，代价高。所以选择**html+freemarker+itext**的实现方案。
 
@@ -34,7 +34,7 @@ categories:
 
 ![design](design.png)
 
-可以看出 SPI对应的是 Render的设计， API对应的是 Builder的设计。而中间的CombinePolicy则是交付给运营人员配置和管理的。
+可以看出 SPI对应的是 Render的设计， API对应的是Builder的设计。而中间的CombinePolicy则是交付给运营人员配置和管理的。
 
 # 总结
 
