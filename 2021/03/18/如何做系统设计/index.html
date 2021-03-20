@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/blogs/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/blogs/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/blogs/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/blogs/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/blogs/css/main.css">
+
+
+<link rel="stylesheet" href="/blogs/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"xsomnus.github.io","root":"/blogs/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="序言系统设计是作为一个架构师最基本的素质和能力要求；本人对于过往的工作经历来关于系统设计总结（方法论)；  Tips:系统设计的范畴要比软件工程小；系统设计对于软件工程占据着最重要的位置。  系统设计流程 需求分析 资源评估 定义目标 领域设计 技术设计 数据库设计 技术选型 代码实现 交付测试&amp;上线">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何做系统设计">
+<meta property="og:url" content="https://xsomnus.github.io/blogs/2021/03/18/%E5%A6%82%E4%BD%95%E5%81%9A%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:site_name" content="技术改变世界">
+<meta property="og:description" content="序言系统设计是作为一个架构师最基本的素质和能力要求；本人对于过往的工作经历来关于系统设计总结（方法论)；  Tips:系统设计的范畴要比软件工程小；系统设计对于软件工程占据着最重要的位置。  系统设计流程 需求分析 资源评估 定义目标 领域设计 技术设计 数据库设计 技术选型 代码实现 交付测试&amp;上线">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-03-18T11:19:03.000Z">
+<meta property="article:modified_time" content="2021-03-20T11:59:38.204Z">
+<meta property="article:author" content="雨一直夏">
+<meta property="article:tag" content="系统设计">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://xsomnus.github.io/blogs/2021/03/18/%E5%A6%82%E4%BD%95%E5%81%9A%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>如何做系统设计 | 技术改变世界</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/blogs/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">技术改变世界</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">用有趣的方式看世界</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/blogs/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/blogs/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/blogs/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/blogs/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/blogs/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://xsomnus.github.io/blogs/2021/03/18/%E5%A6%82%E4%BD%95%E5%81%9A%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blogs/images/avatar.gif">
+      <meta itemprop="name" content="雨一直夏">
+      <meta itemprop="description" content="年少无为,码上人生">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术改变世界">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          如何做系统设计
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-03-18 19:19:03" itemprop="dateCreated datePublished" datetime="2021-03-18T19:19:03+08:00">2021-03-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-03-20 19:59:38" itemprop="dateModified" datetime="2021-03-20T19:59:38+08:00">2021-03-20</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blogs/categories/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" itemprop="url" rel="index"><span itemprop="name">系统设计</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="序言"><a href="#序言" class="headerlink" title="序言"></a>序言</h1><p>系统设计是作为一个架构师最基本的素质和能力要求；本人对于过往的工作经历来关于<strong>系统设计</strong>总结（方法论)；</p>
+<blockquote>
+<p>Tips:<br>系统设计的范畴要比软件工程小；系统设计对于软件工程占据着最重要的位置。</p>
+</blockquote>
+<h1 id="系统设计流程"><a href="#系统设计流程" class="headerlink" title="系统设计流程"></a>系统设计流程</h1><ol>
+<li>需求分析</li>
+<li>资源评估</li>
+<li>定义目标</li>
+<li>领域设计</li>
+<li>技术设计</li>
+<li>数据库设计</li>
+<li>技术选型</li>
+<li>代码实现</li>
+<li>交付测试&amp;上线</li>
+</ol>
+<span id="more"></span>
+
+<h1 id="步骤详解"><a href="#步骤详解" class="headerlink" title="步骤详解"></a>步骤详解</h1><h2 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h2><p>正如每个技术框架是为了解决某一类问题一样，系统必然是为了解决或基础平台，或业务诉求，或市场问题而出发设计的。 明确系统产生的背景， 准确的识别方案与需求不同对于设计一个真正能解决问题的系统至关重要。一个优秀的系统设计必然能够全面的了解系统的背景。</p>
+<blockquote>
+<p>ps:<br>常见基础平台技术需求总结:</p>
+<ul>
+<li>Dubbo, HSF, gRPC解决了RPC(服务治理)的问题</li>
+<li>azkaban, elastic-job, dophinescheduler解决了任务调度的问题</li>
+<li>mysql, redis, tidb, posgres，hdfs,hbase解决不同场景下的数据存储问题</li>
+<li>clickhouse, impala, kylin, presto,druid解决的是olap(ad-hoc)问题</li>
+<li>sentile, guava rate-limiter解决限流，降级的问题</li>
+<li>zookeeper, etcd解决了分布式共识问题</li>
+</ul>
+<p>常见的业务类需求:</p>
+<ul>
+<li>emall (电商系统)</li>
+<li>wms（仓库管理系统）</li>
+<li>crm (客户管理管理)</li>
+<li>iot (物联网)</li>
+<li>im (通讯)</li>
+<li>ERP（企业资源管理)</li>
+</ul>
+</blockquote>
+<h3 id="如何做好需求分析"><a href="#如何做好需求分析" class="headerlink" title="如何做好需求分析"></a>如何做好需求分析</h3><ul>
+<li>明确问题的边界: 是做好需求分析的第一步； 这个边界可能会很大，也可能会很小，但是我们必须要明确一个边界。脱离了边界或者偏离问题域，那么就是浪费时间，事倍功半。</li>
+<li>不谋全局者， 不足以谋一域: 不要仅仅看到产品或者业务提出的需求，要从市场，企业的高度认识该系统在市场和企业中的位置和如何和上下游系统的交互，深刻的理解系统的价值和内涵以及系统存在的意义。 （透过现象看本质）</li>
+<li>userstory: 根据数据流向以及用户故事，准备的画出核心业务流程图或者数据流向图（画图是非常棒的帮助理解需求和系统流程的方法）</li>
+<li>耐心细致: 这点容易被忽略，所以导致开发后会存在返工的现象。<blockquote>
+<p>关于第二点我就自己的工作经验做个分享 -  租赁系统 - 算了吧，篇幅有限。</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="资源评估"><a href="#资源评估" class="headerlink" title="资源评估"></a>资源评估</h2><p>好的系统设计不仅实现企业的既定业务需求，还要在不影响用户体验的前提的为公司节省人力和资源成本，而且能够评估出未来半年到3年范围内，系统设计能够保持一个较好的可扩展性和可维护性，快速迭代，保持产品竞争优势。</p>
+<p>这里说的资源评估包括但不限于 中间件的维护以及服务器资源，服务实例部署资源，公网IP, 带宽以及运维成本等。合理评估用户增长速度和规模对于资源评估至关重要。</p>
+<blockquote>
+<p>这里需要经验积累，不过要是没有也不重要， 完全可以做到在需要的时候，进行基准测试或者网络搜索既有的测试结果来完成评估。 比如根据消息数量来评估kafka集群配置，根据qps和数据量来评估redis配置，根据用户数据以及业务系统评估磁盘容量以及部署服务实例的个数。</p>
+</blockquote>
+<h2 id="定义目标"><a href="#定义目标" class="headerlink" title="定义目标"></a>定义目标</h2><p><strong>一切业务数字化，一切数字业务化</strong>；定义目标的基本的原则是<strong>目标是可量化的</strong>，非常不认可似是而非的目标定义。<br>系统性来看， 目标可分为三大类</p>
+<ul>
+<li>技术性目标: 非常推荐使用SLA协议去定义技术类指标，明确的表明与二方，三方或者外部系统之间交互的标准。</li>
+<li>业务目标: 除了完成既定业务需求以外，关注用户增长率，营收金额（GMV),转化率(漏斗分析)，完成一个迭代周期</li>
+<li>成员指标: bug率(bug要分级)，投诉数量， delay天数、次数</li>
+</ul>
+<blockquote>
+<p>Tips:<br>SLA常见指标: 可用率， TP99, lantency(延迟，分 read/write, 服务内部，公司其他系统以及外部系统), TPS/QPS<br>三高： 高可用， 高性能，高并发 </p>
+</blockquote>
+<h2 id="领域设计"><a href="#领域设计" class="headerlink" title="领域设计"></a>领域设计</h2><p>好吧， 你没有想错， 这里的领域设计指的就是基于DDD（领域驱动设计）的思想对系统进行领域设计。<br>先粘贴一段Dubbo的话语</p>
+<figure class="highlight txt"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">服务域/实体域/会话域分离</span><br><span class="line">任何框架或组件，总会有核心领域模型，比如：Spring 的 Bean，Struts 的 Action，Dubbo 的 Service，Napoli 的 Queue 等等。这个核心领域模型及其组成部分称为实体域，它代表着我们要操作的目标本身。实体域通常是线程安全的，不管是通过不变类，同步状态，或复制的方式。</span><br><span class="line"></span><br><span class="line">服务域也就是行为域，它是组件的功能集，同时也负责实体域和会话域的生命周期管理， 比如 Spring 的 ApplicationContext，Dubbo 的 ServiceManager 等。服务域的对象通常会比较重，而且是线程安全的，并以单一实例服务于所有调用。</span><br><span class="line"></span><br><span class="line">什么是会话？就是一次交互过程。会话中重要的概念是上下文，什么是上下文？比如我们说：“老地方见”，这里的“老地方”就是上下文信息。为什么说“老地方”对方会知道，因为我们前面定义了“老地方”的具体内容。所以说，上下文通常持有交互过程中的状态变量等。会话对象通常较轻，每次请求都重新创建实例，请求结束后销毁。简而言之：把元信息交由实体域持有，把一次请求中的临时状态由会话域持有，由服务域贯穿整个过程。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>关于DDD，我说下自己的感悟；<br>限界上下文非常重要， 它明确了我们要处理问题的边界。 核心子域，通用子域，支撑子域都有自己的边界， 根对象是子域交互的核心，值对象保存基本的配置信息和上下文信息。 子域划分的粒度以及边界的确定是DDD最难的一点， 就经验来说，处理好的关键是不断的分析用户故事，看下子域之间的交互频率以及业务运营的主体是不是同一个部门。</p>
+<p><strong>领域设计要有产出</strong><br>图 – 领域边界图以及各个子域的功能图<br>文档 – 1. 各个子域的API，以及核心的根对象和值对象  2. API说明文档</p>
+<h2 id="技术设计"><a href="#技术设计" class="headerlink" title="技术设计"></a>技术设计</h2><p>单体架构基本被时代淘汰掉，分布式架构（SOA，微服务，微内核， ESB）已经成为事实标准。 包括服务注册发现，网关， 鉴权，链路追踪，线上监控， 消息队列选型，缓存，一致性， 分布式事务， 实时索引，对接三方系统以及数仓，工作流，规则引擎，定时任务，日志服务等。</p>
+<p>在设计阶段，很难做到考虑到所有的点，但是遵循<strong>可演进，合适，可扩展</strong>的基本原则，我们要明确核心的数据流向流程和遵循企业研发规范，在此基础上，不会偏离主线。螺旋式演进才是王道。</p>
+<p>技术设计同样需要产出</p>
+<ul>
+<li>架构设计图</li>
+<li>核心业务流程图</li>
+<li>核心模块组件图</li>
+<li>服务划分(基础服务做SASS,做中台，特定业务线的服务做分离，做聚合)说明文档</li>
+<li>核心模块交互时序图</li>
+</ul>
+<p>技术设计本质上是架构设计， 需要反复推敲和讨论对业务建模，然后针对于不同的场景下的考量做技术选型（tradeoff).</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blogs/tags/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" rel="tag"># 系统设计</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blogs/2021/03/09/PDF%E5%AF%BC%E5%87%BA%E5%8A%9F%E8%83%BD%E8%AE%BE%E8%AE%A1/" rel="prev" title="PDF导出功能设计">
+      <i class="fa fa-chevron-left"></i> PDF导出功能设计
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%8F%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">序言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">系统设计流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">步骤详解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90"><span class="nav-number">3.1.</span> <span class="nav-text">需求分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%81%9A%E5%A5%BD%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90"><span class="nav-number">3.1.1.</span> <span class="nav-text">如何做好需求分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E8%AF%84%E4%BC%B0"><span class="nav-number">3.2.</span> <span class="nav-text">资源评估</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E7%9B%AE%E6%A0%87"><span class="nav-number">3.3.</span> <span class="nav-text">定义目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.4.</span> <span class="nav-text">领域设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.5.</span> <span class="nav-text">技术设计</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">雨一直夏</p>
+  <div class="site-description" itemprop="description">年少无为,码上人生</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/blogs/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/blogs/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/blogs/tags/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">雨一直夏</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/blogs/lib/anime.min.js"></script>
+  <script src="/blogs/lib/velocity/velocity.min.js"></script>
+  <script src="/blogs/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/blogs/js/utils.js"></script>
+
+<script src="/blogs/js/motion.js"></script>
+
+
+<script src="/blogs/js/schemes/pisces.js"></script>
+
+
+<script src="/blogs/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '68c9173ea0460ae78815',
+      clientSecret: '0b71cd9b77f2fdb311cda9acc8c80a7c10a5b243',
+      repo        : 'blogs',
+      owner       : 'xsomnus',
+      admin       : ['xsomnus'],
+      id          : '65def1d707c8bc9059f9c292415954e9',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+
+</body>
+</html>
