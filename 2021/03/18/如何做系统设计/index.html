@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"xsomnus.github.io","root":"/blogs/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="序言系统设计是作为一个架构师最基本的素质和能力要求；本人对于过往的工作经历来关于系统设计总结（方法论)；  Tips:系统设计的范畴要比软件工程小；系统设计对于软件工程占据着最重要的位置。  系统设计流程 需求分析 资源评估 定义目标 领域设计 技术设计 数据库设计 技术选型 代码实现 交付测试&amp;上线">
+  <meta name="description" content="序言系统设计是作为一个架构师最基本的素质和能力要求；本人对于过往的工作经历来关于系统设计总结（方法论)；  Tips:系统设计的范畴要比软件工程小；系统设计对于软件工程占据着最重要的位置。  系统设计流程 需求分析 资源评估 定义目标 领域设计 技术设计 数据库设计 代码实现 交付测试&amp;上线">
 <meta property="og:type" content="article">
 <meta property="og:title" content="如何做系统设计">
 <meta property="og:url" content="https://xsomnus.github.io/blogs/2021/03/18/%E5%A6%82%E4%BD%95%E5%81%9A%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/index.html">
 <meta property="og:site_name" content="技术改变世界">
-<meta property="og:description" content="序言系统设计是作为一个架构师最基本的素质和能力要求；本人对于过往的工作经历来关于系统设计总结（方法论)；  Tips:系统设计的范畴要比软件工程小；系统设计对于软件工程占据着最重要的位置。  系统设计流程 需求分析 资源评估 定义目标 领域设计 技术设计 数据库设计 技术选型 代码实现 交付测试&amp;上线">
+<meta property="og:description" content="序言系统设计是作为一个架构师最基本的素质和能力要求；本人对于过往的工作经历来关于系统设计总结（方法论)；  Tips:系统设计的范畴要比软件工程小；系统设计对于软件工程占据着最重要的位置。  系统设计流程 需求分析 资源评估 定义目标 领域设计 技术设计 数据库设计 代码实现 交付测试&amp;上线">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-03-18T11:19:03.000Z">
-<meta property="article:modified_time" content="2021-03-20T11:59:38.204Z">
+<meta property="article:modified_time" content="2021-03-21T03:59:12.736Z">
 <meta property="article:author" content="雨一直夏">
 <meta property="article:tag" content="系统设计">
 <meta name="twitter:card" content="summary">
@@ -197,7 +197,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-03-20 19:59:38" itemprop="dateModified" datetime="2021-03-20T19:59:38+08:00">2021-03-20</time>
+                <time title="修改时间：2021-03-21 11:59:12" itemprop="dateModified" datetime="2021-03-21T11:59:12+08:00">2021-03-21</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -231,7 +231,6 @@
 <li>领域设计</li>
 <li>技术设计</li>
 <li>数据库设计</li>
-<li>技术选型</li>
 <li>代码实现</li>
 <li>交付测试&amp;上线</li>
 </ol>
@@ -286,8 +285,8 @@
 
 <p>关于DDD，我说下自己的感悟；<br>限界上下文非常重要， 它明确了我们要处理问题的边界。 核心子域，通用子域，支撑子域都有自己的边界， 根对象是子域交互的核心，值对象保存基本的配置信息和上下文信息。 子域划分的粒度以及边界的确定是DDD最难的一点， 就经验来说，处理好的关键是不断的分析用户故事，看下子域之间的交互频率以及业务运营的主体是不是同一个部门。</p>
 <p><strong>领域设计要有产出</strong><br>图 – 领域边界图以及各个子域的功能图<br>文档 – 1. 各个子域的API，以及核心的根对象和值对象  2. API说明文档</p>
-<h2 id="技术设计"><a href="#技术设计" class="headerlink" title="技术设计"></a>技术设计</h2><p>单体架构基本被时代淘汰掉，分布式架构（SOA，微服务，微内核， ESB）已经成为事实标准。 包括服务注册发现，网关， 鉴权，链路追踪，线上监控， 消息队列选型，缓存，一致性， 分布式事务， 实时索引，对接三方系统以及数仓，工作流，规则引擎，定时任务，日志服务等。</p>
-<p>在设计阶段，很难做到考虑到所有的点，但是遵循<strong>可演进，合适，可扩展</strong>的基本原则，我们要明确核心的数据流向流程和遵循企业研发规范，在此基础上，不会偏离主线。螺旋式演进才是王道。</p>
+<h2 id="技术设计"><a href="#技术设计" class="headerlink" title="技术设计"></a>技术设计</h2><h3 id="通用设计"><a href="#通用设计" class="headerlink" title="通用设计"></a>通用设计</h3><p>单体架构基本被时代淘汰掉，分布式架构（SOA，微服务，微内核， ESB）已经成为事实标准。 包括服务注册发现，网关， 鉴权，链路追踪，线上监控， 消息队列选型，缓存，一致性， 分布式事务， 实时索引，对接三方系统以及数仓，工作流，规则引擎，定时任务，日志服务等。</p>
+<p>在设计阶段，很难做到考虑到所有的点，但是遵循<strong>可演进，合适，可扩展</strong>的基本原则，我们要明确核心的数据流向流程和遵循企业研发规范，在此基础上，就能保证不会偏离主线。螺旋式演进才是王道。</p>
 <p>技术设计同样需要产出</p>
 <ul>
 <li>架构设计图</li>
@@ -297,6 +296,38 @@
 <li>核心模块交互时序图</li>
 </ul>
 <p>技术设计本质上是架构设计， 需要反复推敲和讨论对业务建模，然后针对于不同的场景下的考量做技术选型（tradeoff).</p>
+<blockquote>
+<p>Tips:<br>常见的几个tradeoff</p>
+<ul>
+<li>可扩展性和高性能</li>
+<li>可用性和一致性</li>
+<li>延迟和吞吐量</li>
+</ul>
+</blockquote>
+<h3 id="核心技术攻关"><a href="#核心技术攻关" class="headerlink" title="核心技术攻关"></a>核心技术攻关</h3><p>每个需求都会有自己核心部分技术实现， 比如设计一个短域名服务，社交feed流，IM系统亦或是ailab这样的平台，都会有自己的核心技术难点。所以在技术设计阶段， 充分考虑系统本身带来的技术难点是非常用必要的。 就自己的工作经验来说，我一般会采用以下三种方式来进行贺核心技术攻关</p>
+<ul>
+<li>参考既有的开源的工程，模仿实现</li>
+<li>独立实现一个最小的MVP工程</li>
+<li>寻求团队或者朋友，共同分解问题，</li>
+<li></li>
+<li>讨论实现</li>
+</ul>
+<h2 id="数据库设计"><a href="#数据库设计" class="headerlink" title="数据库设计"></a>数据库设计</h2><blockquote>
+<p>序言：数据库设计不仅限于RDBMS(mysql, posgres),还应包括Nosql(redis,hbase， es)，图数据库的设计以及newsql的设计。 凡是涉及到状态存储的都是数据库设计的范畴；因此，我们不仅是要做技术选型还要产出ER或者DDL语句。团队成员内部经过充分讨论和分析最终形成的结果。</p>
+</blockquote>
+<p>这是最重要的一个阶段，如果说前面的阶段是方案设计阶段，那么到这个阶段就是技术落地的阶段。充分考虑到<strong>可扩展，单一职责，高效读写</strong>的前提原则下，我们对于实体要做细致的划分，考虑到业务实现过程中的一些细节和可扩展性的问题。 </p>
+<p>数据库设计三范式提供了一个很好的指导原则，但是实际开发中， 不必刻意遵守，如果为了性能和可读性，牺牲一部分的独立性是可以的。</p>
+<blockquote>
+<p>Tips:<br>存储引擎之间的数据同步和一致性性的问题， 在这个阶段也应该被充分的考虑。 比如商品数据存储在mysql中，但是搜索商品使用的是es的服务，采取何种策略来同步mysql商品数据到es中(采用定时任务或者是CDC方案)是需要团队之间进行考虑的。</p>
+</blockquote>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><p>在前面的充分的准备工作后， 代码实现部分基本遵循小集体（披萨团队）负责一个或者多个模块的原则进行coding. 虽然在之前的工作经验中，我会用比如去掉鉴权的方式来加速前后端联调的速度。但是我认为这不是一个好习惯。 个人比较推崇的是服务会分为基础服务，业务中台服务以及业务线专有服务。而这些服务之间会在某个业务流程中，形成一个DAG的图，因此为了保证效率， 可以由组长或者是业务流程闭环的模块的团队成员规定其他模块的一个deadline. 这样可以保证团队之间的高效协作。</p>
+<p>遵循开发规范以及设计原则（SOLID)是coding环节的重要部分。影响的因素主要有两个，其一是接口设计的好坏（顶层）， 其二是程序员自身的水平实力。</p>
+<h2 id="交付测试-amp-上线"><a href="#交付测试-amp-上线" class="headerlink" title="交付测试&amp;上线"></a>交付测试&amp;上线</h2><p>后续的CR， UAT以及deploy的过程，其实已经不算是系统设计的范畴， 更算是软件工程的知识体系。 我这里不再做详细的解释， 只强调一句: 开发要写好单元测试和集成测试。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><blockquote>
+<p>天下之大事必作于易, 天下之难事必做于细。</p>
+</blockquote>
+<p>系统设计，尤其在设计一个大型的系统的时候是有复杂性的，考虑各个目标之间的一个平衡是门学问。在真正落地的时候，编程的细节对于性能和可扩展性有着重要的作用，这决定了后期系统的可维护性以及升级迭代的效率。</p>
+<p>这是一个持续练习和感悟的过程，不要想着可以快速成为系统设计的高手，需要时间，耐心以及努力。</p>
 
     </div>
 
@@ -378,7 +409,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%8F%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">序言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">系统设计流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">步骤详解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90"><span class="nav-number">3.1.</span> <span class="nav-text">需求分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%81%9A%E5%A5%BD%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90"><span class="nav-number">3.1.1.</span> <span class="nav-text">如何做好需求分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E8%AF%84%E4%BC%B0"><span class="nav-number">3.2.</span> <span class="nav-text">资源评估</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E7%9B%AE%E6%A0%87"><span class="nav-number">3.3.</span> <span class="nav-text">定义目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.4.</span> <span class="nav-text">领域设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.5.</span> <span class="nav-text">技术设计</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BA%8F%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">序言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">系统设计流程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">步骤详解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90"><span class="nav-number">3.1.</span> <span class="nav-text">需求分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%81%9A%E5%A5%BD%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90"><span class="nav-number">3.1.1.</span> <span class="nav-text">如何做好需求分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B5%84%E6%BA%90%E8%AF%84%E4%BC%B0"><span class="nav-number">3.2.</span> <span class="nav-text">资源评估</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E7%9B%AE%E6%A0%87"><span class="nav-number">3.3.</span> <span class="nav-text">定义目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%86%E5%9F%9F%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.4.</span> <span class="nav-text">领域设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.5.</span> <span class="nav-text">技术设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.5.1.</span> <span class="nav-text">通用设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E6%8A%80%E6%9C%AF%E6%94%BB%E5%85%B3"><span class="nav-number">3.5.2.</span> <span class="nav-text">核心技术攻关</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E5%BA%93%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.6.</span> <span class="nav-text">数据库设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.7.</span> <span class="nav-text">代码实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%A4%E4%BB%98%E6%B5%8B%E8%AF%95-amp-%E4%B8%8A%E7%BA%BF"><span class="nav-number">3.8.</span> <span class="nav-text">交付测试&amp;上线</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
