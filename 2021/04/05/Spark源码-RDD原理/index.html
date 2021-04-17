@@ -20,18 +20,22 @@
     var CONFIG = {"hostname":"xsomnus.github.io","root":"/blogs/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="年少无为,码上人生">
-<meta property="og:type" content="website">
-<meta property="og:title" content="技术改变世界">
-<meta property="og:url" content="https://xsomnus.github.io/blogs/tags/Spark/index.html">
+  <meta name="description" content="为什么Spark需要设计RDD?RDD是什么?RDD源码详解">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark源码-RDD原理">
+<meta property="og:url" content="https://xsomnus.github.io/blogs/2021/04/05/Spark%E6%BA%90%E7%A0%81-RDD%E5%8E%9F%E7%90%86/index.html">
 <meta property="og:site_name" content="技术改变世界">
-<meta property="og:description" content="年少无为,码上人生">
+<meta property="og:description" content="为什么Spark需要设计RDD?RDD是什么?RDD源码详解">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-04-05T04:18:13.000Z">
+<meta property="article:modified_time" content="2021-04-17T11:35:39.165Z">
 <meta property="article:author" content="雨一直夏">
-<meta property="article:tag" content="Go,Java,大数据,人工智能,云计算,分布式">
+<meta property="article:tag" content="Spark">
+<meta property="article:tag" content="RDD">
+<meta property="article:tag" content="源码解读">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://xsomnus.github.io/blogs/tags/Spark/">
+<link rel="canonical" href="https://xsomnus.github.io/blogs/2021/04/05/Spark%E6%BA%90%E7%A0%81-RDD%E5%8E%9F%E7%90%86/">
 
 
 <script id="page-configurations">
@@ -39,12 +43,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>标签: Spark | 技术改变世界</title>
+  <title>Spark源码-RDD原理 | 技术改变世界</title>
   
 
 
@@ -158,77 +162,107 @@
         <div class="content-wrap">
           
 
-          <div class="content tag">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <h2 class="collection-header">Spark
-          <small>标签</small>
-        </h2>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://xsomnus.github.io/blogs/2021/04/05/Spark%E6%BA%90%E7%A0%81-RDD%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/blogs/images/avatar.gif">
+      <meta itemprop="name" content="雨一直夏">
+      <meta itemprop="description" content="年少无为,码上人生">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="技术改变世界">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Spark源码-RDD原理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-04-05 12:18:13" itemprop="dateCreated datePublished" datetime="2021-04-05T12:18:13+08:00">2021-04-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-04-17 19:35:39" itemprop="dateModified" datetime="2021-04-17T19:35:39+08:00">2021-04-17</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blogs/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" itemprop="url" rel="index"><span itemprop="name">大数据</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/blogs/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/Spark/" itemprop="url" rel="index"><span itemprop="name">Spark</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2021</span>
+        <h1 id="为什么Spark需要设计RDD"><a href="#为什么Spark需要设计RDD" class="headerlink" title="为什么Spark需要设计RDD?"></a>为什么Spark需要设计RDD?</h1><h1 id="RDD是什么"><a href="#RDD是什么" class="headerlink" title="RDD是什么?"></a>RDD是什么?</h1><h1 id="RDD源码详解"><a href="#RDD源码详解" class="headerlink" title="RDD源码详解"></a>RDD源码详解</h1>
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-04-05T12:18:13+08:00"
-              content="2021-04-05">
-          04-05
-        </time>
-      </div>
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/blogs/tags/Spark/" rel="tag"># Spark</a>
+              <a href="/blogs/tags/RDD/" rel="tag"># RDD</a>
+              <a href="/blogs/tags/%E6%BA%90%E7%A0%81%E8%A7%A3%E8%AF%BB/" rel="tag"># 源码解读</a>
+          </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/blogs/2021/04/05/Spark%E6%BA%90%E7%A0%81-RDD%E5%8E%9F%E7%90%86/" itemprop="url">
-            <span itemprop="name">Spark源码-RDD原理</span>
-          </a>
-      </div>
+        
 
-    </header>
-  </article>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-03-08T10:37:29+08:00"
-              content="2021-03-08">
-          03-08
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/blogs/2021/03/08/Spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB-%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91/" itemprop="url">
-            <span itemprop="name">Spark源码阅读-源码编译</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/blogs/2021/03/29/%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E9%AB%98%E5%B9%B6%E5%8F%91%E7%9A%84%E7%B3%BB%E7%BB%9F/" rel="prev" title="如何设计一个高并发的系统">
+      <i class="fa fa-chevron-left"></i> 如何设计一个高并发的系统
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-  </div>
+      </footer>
+    
+  </article>
   
   
-  
-
   
 
 
 
           </div>
           
+    <div class="comments" id="gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -275,6 +309,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88Spark%E9%9C%80%E8%A6%81%E8%AE%BE%E8%AE%A1RDD"><span class="nav-number">1.</span> <span class="nav-text">为什么Spark需要设计RDD?</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RDD%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">2.</span> <span class="nav-text">RDD是什么?</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RDD%E6%BA%90%E7%A0%81%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">RDD源码详解</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -388,6 +423,25 @@
 
   
 
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : '68c9173ea0460ae78815',
+      clientSecret: '0b71cd9b77f2fdb311cda9acc8c80a7c10a5b243',
+      repo        : 'blogs',
+      owner       : 'xsomnus',
+      admin       : ['xsomnus'],
+      id          : 'a7e23c2794cfe596f1c9725ca853a4fb',
+        language: '',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
 
 </body>
 </html>
